@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-top: 20px;
+        }
+        .list-group-item {
+            margin-bottom: 10px;
+        }
+        .ratio {
+            margin-bottom: 20px;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .map-chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .map-chart-container > div {
+            flex: 1 1 100%;
+        }
+        @media (min-width: 768px) {
+            .map-chart-container > div {
+                flex: 1 1 45%;
+            }
+        }
+        .chart-container {
+            height: 500px;
+            width: 100%;
+        }
+        .modal-dialog {
+            max-width: 90%;
+        }
+        .modal-body {
+            height: 80vh;
+        }
+        #fullmap {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h2>Route Optimization Results</h2>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title text-center">Route Details</h5>
+                <ul class="list-group mb-4">
+                    <li class="list-group-item"><strong>Origin:</strong> {{ route.origin }}</li>
+                    <li class="list-group-item"><strong>Destination:</strong> {{ route.destination }}</li>
+                    <li class="list-group-item"><strong>Distance:</strong> {{ route.distance }}</li>
+                    <li class="list-group-item"><strong>Time:</strong> {{ route.time }}</li>
+                    <li class="list-group-item"><strong>Estimated Emissions:</strong> {{ route.emissions }}</li>
+                </ul>
+
+                <div class="mb-4">
+                    <h5 class="text-center">Air Quality Information</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>AQI:</strong> {{ route.air_quality.aqi }}</li>
+                        <li class="list-group-item"><strong>Dominant Pollutant:</strong> {{ route.air_quality.dominant_pollutant }}</li>
+                    </ul>
+                </div>
+
+                <div class="map-chart-container">
+                    <div>
+                        <h5 class="text-center">Route Map</h5>
+                        <div id="map"></div>
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#mapModal">View Map on Fullscreen</button>
+                        <button class="btn btn-success mt-3" onclick="startNavigation()">Start Navigation</button>
+                        <button class="btn btn-danger mt-3" onclick="stopNavigation()">Stop Navigation</button>
+                    </div>
+                    <div>
+                        <h5 class="text-center">Emissions Comparison Chart</h5>
+                        <div class="chart-container">
+                            <iframe src="{{ route.chart_path }}" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for fullscreen map -->
+    <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mapModalLabel">Fullscreen Map</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="fullmap"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map, fullmap, routeCoordinates, polyline, weatherMarkers, currentPositionMarker, directionsService, directionsRenderer;
+        const vehicleType = "{{ route.vehicle_type }}";
+        let lastNarrationTime = 0;
+        let lastNarrationPosition = { lat: null, lon: null };
+        let watchId;
+
+        // Initialize the map
+        function initMap() {
+            map = L.map('map').setView([{{ route.coordinates[0][0] }}, {{ route.coordinates[0][1] }}], 12);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            routeCoordinates = {{ route.coordinates | tojson }};
+            polyline = L.polyline(routeCoordinates, { color: 'blue' }).addTo(map);
+
+            // Add weather markers
+            weatherMarkers = {{ route.weather_markers | tojson }};
+            weatherMarkers.forEach(marker => {
+                L.marker([marker.lat, marker.lon], {
+                    icon: L.icon({
+                        iconUrl: marker.icon_url,
+                        iconSize: [50, 50]
+                    })
+                }).bindPopup(`Temp: ${marker.temperature}°C, Condition: ${marker.condition}, Wind: ${marker.wind_speed} m/s, Humidity: ${marker.humidity}%`).addTo(map);
+            });
+
+            map.fitBounds(polyline.getBounds());
+        }
+
+        // Initialize the fullscreen map
+        function initFullMap() {
+            fullmap = L.map('fullmap').setView([{{ route.coordinates[0][0] }}, {{ route.coordinates[0][1] }}], 12);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(fullmap);
+
+            polyline = L.polyline(routeCoordinates, { color: 'blue' }).addTo(fullmap);
+
+            // Add weather markers
+            weatherMarkers.forEach(marker => {
+                L.marker([marker.lat, marker.lon], {
+                    icon: L.icon({
+                        iconUrl: marker.icon_url,
+                        iconSize: [50, 50]
+                    })
+                }).bindPopup(`Temp: ${marker.temperature}°C, Condition: ${marker.condition}, Wind: ${marker.wind_speed} m/s, Humidity: ${marker.humidity}%`).addTo(fullmap);
+            });
+
+            fullmap.fitBounds(polyline.getBounds());
+        }
+
+        // Start navigation
+        function startNavigation() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(updatePosition, showError, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 10000 // Increase timeout duration to 10 seconds
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Stop navigation
+        function stopNavigation() {
+            if (navigator.geolocation && watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                if (currentPositionMarker) {
+                    map.removeLayer(currentPositionMarker);
+                }
+                alert("Navigation stopped.");
+            }
+        }
+
+        // Update position on the map
+        function updatePosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            // Remove the previous marker if it exists
+            if (currentPositionMarker) {
+                map.removeLayer(currentPositionMarker);
+            }
+
+            // Add a marker for the current position
+            currentPositionMarker = L.marker([lat, lon], {
+                icon: L.icon({
+                    iconUrl: getVehicleIconUrl(vehicleType),
+                    iconSize: [50, 50]
+                })
+            }).addTo(map);
+
+            // Fetch the optimized route from the current location
+            fetchOptimizedRoute(lat, lon, "{{ route.destination }}");
+        }
+
+        // Fetch the optimized route from the current location
+        function fetchOptimizedRoute(lat, lon, destination) {
+            const url = `/fetch-optimized-route?lat=${lat}&lon=${lon}&destination=${destination}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the map with the new route
+                    map.removeLayer(polyline);
+                    routeCoordinates = data.coordinates;
+                    polyline = L.polyline(routeCoordinates, { color: 'blue' }).addTo(map);
+                    map.fitBounds(polyline.getBounds());
+                })
+                .catch(error => {
+                    console.error("Error fetching optimized route:", error);
+                });
+        }
+
+        // Narrate the next turn
+        function narrateTurn(turn) {
+            const utterance = new SpeechSynthesisUtterance(`Turn ${turn.direction} in ${turn.distance} meters`);
+            window.speechSynthesis.speak(utterance);
+            lastNarrationTime = Date.now();
+            lastNarrationPosition = { lat: turn.lat, lon: turn.lon };
+        }
+
+        // Determine if narration should occur based on time and distance
+        function shouldNarrate(lat, lon) {
+            const currentTime = Date.now();
+            const timeElapsed = currentTime - lastNarrationTime;
+            const distanceElapsed = getDistanceFromLatLonInKm(lastNarrationPosition.lat, lastNarrationPosition.lon, lat, lon) * 1000;
+
+            return timeElapsed >= 120000 || distanceElapsed >= 100; // 2 minutes or 100 meters
+        }
+
+        // Calculate distance between two coordinates
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in km
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const d = R * c; // Distance in km
+            return d;
+        }
+
+        // Convert degrees to radians
+        function deg2rad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        // Show error if geolocation fails
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out. Please try again.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+
+        // Get the vehicle icon URL based on the vehicle type
+        function getVehicleIconUrl(vehicleType) {
+            switch (vehicleType) {
+                case 'car':
+                    return 'path/to/car-icon.png';
+                case 'bike':
+                    return 'path/to/bike-icon.png';
+                case 'truck':
+                    return 'path/to/truck-icon.png';
+                default:
+                    return 'path/to/default-icon.png';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initMap);
+        document.getElementById('mapModal').addEventListener('shown.bs.modal', initFullMap);
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+
+</html>

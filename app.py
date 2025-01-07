@@ -110,7 +110,7 @@ def calculate_route():
                 })
 
         # Convert distance to float (assume input is like "10 km")
-        distance = float(distance_text.split()[0])
+        distance = float(distance_text.replace(',', '').split()[0])
 
         # Calculate emissions using the new function
         emissions = calculate_emissions(distance, vehicle_type)

@@ -74,14 +74,6 @@ function App() {
     setShowImage(false);
   };
 
-  const startNavigation = () => {
-    setIsNavigating(true);
-  };
-
-  const stopNavigation = () => {
-    setIsNavigating(false);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -139,24 +131,13 @@ function App() {
 
                     <div className={`route-details-container ${results ? 'animate-fade-in' : 'hidden'}`}>
                       {routeData && (
-                        <>
-                          <RouteDetails 
-                            routeData={routeData} 
-                            vehicleDetails={vehicleDetails}
-                            isNavigating={isNavigating}
-                            selectedRouteIndex={selectedRouteIndex}
-                            onRouteSelect={setSelectedRouteIndex}
-                          />
-                          <div className="mt-4 flex justify-center">
-                            <Button
-                              onClick={isNavigating ? stopNavigation : startNavigation}
-                              className="flex items-center gap-2"
-                            >
-                              <Navigation2 className="h-4 w-4" />
-                              {isNavigating ? 'Stop Navigation' : 'Start Navigation'}
-                            </Button>
-                          </div>
-                        </>
+                        <RouteDetails 
+                          routeData={routeData} 
+                          vehicleDetails={vehicleDetails}
+                          isNavigating={isNavigating}
+                          selectedRouteIndex={selectedRouteIndex}
+                          onRouteSelect={setSelectedRouteIndex}
+                        />
                       )}
                     </div>
                   </div>

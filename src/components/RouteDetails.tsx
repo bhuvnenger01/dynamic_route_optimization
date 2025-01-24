@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { VehicleDetails } from '@/types/vehicle';
 import RouteMap from './RouteMap';
 import RouteInformationCard from './route/RouteInformationCard';
@@ -45,10 +45,11 @@ interface RouteDetailsProps {
 const RouteDetails: React.FC<RouteDetailsProps> = ({ 
   routeData, 
   vehicleDetails,
-  isNavigating,
   selectedRouteIndex,
   onRouteSelect
 }) => {
+  const [isNavigating, setIsNavigating] = useState(false);
+
   if (!routeData || !routeData.routes || routeData.routes.length === 0) {
     return <div>Loading route details...</div>;
   }
@@ -61,6 +62,14 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
   }
 
   const weatherData = selectedRoute.weather_markers?.[0];
+
+  const startNavigation = () => {
+    setIsNavigating(true);
+  };
+
+  const stopNavigation = () => {
+    setIsNavigating(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -91,8 +100,8 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
           />
           <div className="mt-4 flex justify-center">
             <Button
-              className="flex items-center gap-2 w-full md:w-auto"
-              onClick={() => {/* ... keep existing code */}}
+              onClick={isNavigating ? stopNavigation : startNavigation}
+              className="flex items-center gap-2"
             >
               <Navigation2 className="h-4 w-4" />
               {isNavigating ? 'Stop Navigation' : 'Start Navigation'}

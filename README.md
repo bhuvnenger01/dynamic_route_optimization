@@ -21,8 +21,8 @@ To get started with the project, follow these steps:
 
 1. **Clone the repository:**
     ```sh
-    git clone https://github.com/bhuvnenger01/routewise.git
-    cd routewise
+    git clone https://github.com/bhuvnenger01/dynamic_route_optimization.git
+    cd dynamic_route_optimization
     ```
 
 2. **Install dependencies:**
@@ -47,7 +47,7 @@ To get started with the project, follow these steps:
 
 ## Usage
 
-1. Open your browser and navigate to `http://localhost:3000` (or the specified port).
+1. Open your browser and navigate to `http://localhost:8081` (or the specified port).
 2. Enter your starting point and destination.
 3. Customize your route preferences.
 4. Click on "Calculate Route" to get the best route options.

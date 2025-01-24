@@ -13,6 +13,9 @@ import { VehicleDetailsForm } from './components/VehicleDetailsForm';
 import { VehicleDetails } from './types/vehicle';
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import LocationSelector from './components/LocationSelector';
+import { Button } from "@/components/ui/button";
+import { Navigation2 } from "lucide-react";
 
 const socket = io('http://localhost:5000');
 
@@ -37,6 +40,8 @@ function App() {
   const [form, setForm] = useToggle(true);
   const [results, setResults] = useToggle(false);
   const [showImage, setShowImage] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
   useEffect(() => {
     socket.on('response', (data) => {
@@ -69,6 +74,14 @@ function App() {
     setShowImage(false);
   };
 
+  const startNavigation = () => {
+    setIsNavigating(true);
+  };
+
+  const stopNavigation = () => {
+    setIsNavigating(false);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -92,26 +105,16 @@ function App() {
                           <VehicleDetailsForm onSubmit={handleVehicleSubmit} />
                           
                           <div className="space-y-6">
-                            <div>
-                              <label className="block text-gray-600 text-sm font-medium mb-2">Origin</label>
-                              <input
-                                type="text"
-                                placeholder="Enter origin"
-                                value={origin}
-                                onChange={(e) => setOrigin(e.target.value)}
-                                className="form-input"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-gray-600 text-sm font-medium mb-2">Destination</label>
-                              <input
-                                type="text"
-                                placeholder="Enter destination"
-                                value={destination}
-                                onChange={(e) => setDestination(e.target.value)}
-                                className="form-input"
-                              />
-                            </div>
+                            <LocationSelector
+                              label="Origin"
+                              placeholder="Enter origin"
+                              onLocationSelect={setOrigin}
+                            />
+                            <LocationSelector
+                              label="Destination"
+                              placeholder="Enter destination"
+                              onLocationSelect={setDestination}
+                            />
                             <button 
                               onClick={fetchRouteData} 
                               className="button-primary w-full"
@@ -135,7 +138,26 @@ function App() {
                     </div>
 
                     <div className={`route-details-container ${results ? 'animate-fade-in' : 'hidden'}`}>
-                      {routeData && <RouteDetails routeData={routeData} vehicleDetails={vehicleDetails} />}
+                      {routeData && (
+                        <>
+                          <RouteDetails 
+                            routeData={routeData} 
+                            vehicleDetails={vehicleDetails}
+                            isNavigating={isNavigating}
+                            selectedRouteIndex={selectedRouteIndex}
+                            onRouteSelect={setSelectedRouteIndex}
+                          />
+                          <div className="mt-4 flex justify-center">
+                            <Button
+                              onClick={isNavigating ? stopNavigation : startNavigation}
+                              className="flex items-center gap-2"
+                            >
+                              <Navigation2 className="h-4 w-4" />
+                              {isNavigating ? 'Stop Navigation' : 'Start Navigation'}
+                            </Button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 } />

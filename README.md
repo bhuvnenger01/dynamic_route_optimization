@@ -1,6 +1,7 @@
-# RouteWise
 
-RouteWise is a web application designed to help users find the best routes for their journeys. The application is built using TypeScript, Python, and CSS.
+# Route Finder IO
+
+Route Finder IO is a web application designed to help users find the best routes for their journeys. The application is built using TypeScript, Python, and CSS.
 
 ## Features
 
@@ -21,8 +22,8 @@ To get started with the project, follow these steps:
 
 1. **Clone the repository:**
     ```sh
-    git clone https://github.com/bhuvnenger01/dynamic_route_optimization.git
-    cd dynamic_route_optimization
+    git clone https://github.com/bhuvnenger01/route-finder-io.git
+    cd route-finder-io
     ```
 
 2. **Install dependencies:**
@@ -47,10 +48,10 @@ To get started with the project, follow these steps:
 
 ## Usage
 
-1. Open your browser and navigate to `http://localhost:8081` (or the specified port).
+1. Open your browser and navigate to `http://localhost:3000` (or the specified port).
 2. Enter your starting point and destination.
 3. Customize your route preferences.
-4. Click on "Calculate Route" to get the best route options.
+4. Click on "Find Route" to get the best route options.
 
 ## Contributing
 
@@ -69,4 +70,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 For any questions or suggestions, please contact [bhuvnenger01](https://github.com/bhuvnenger01).
-

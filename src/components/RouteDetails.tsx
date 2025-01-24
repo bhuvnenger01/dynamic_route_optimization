@@ -33,9 +33,18 @@ interface RouteDetailsProps {
     }>;
   };
   vehicleDetails: VehicleDetails;
+  isNavigating: boolean;
+  selectedRouteIndex: number;
+  onRouteSelect: (index: number) => void;
 }
 
-const RouteDetails: React.FC<RouteDetailsProps> = ({ routeData, vehicleDetails }) => {
+const RouteDetails: React.FC<RouteDetailsProps> = ({ 
+  routeData, 
+  vehicleDetails,
+  isNavigating,
+  selectedRouteIndex,
+  onRouteSelect
+}) => {
   if (!routeData) {
     return <div>Loading route details...</div>;
   }
@@ -68,6 +77,9 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({ routeData, vehicleDetails }
           coordinates={routeData.coordinates}
           origin={routeData.origin}
           destination={routeData.destination}
+          isNavigating={isNavigating}
+          selectedRouteIndex={selectedRouteIndex}
+          onRouteSelect={onRouteSelect}
         />
       </div>
     </div>

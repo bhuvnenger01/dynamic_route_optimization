@@ -5,6 +5,7 @@ import RouteInformationCard from './route/RouteInformationCard';
 import EmissionsChart from './route/EmissionsChart';
 import WeatherCard from './route/WeatherCard';
 import { Button } from "@/components/ui/button";
+import { Navigation2 } from "lucide-react";
 
 interface RouteDetailsProps {
   routeData: {
@@ -52,7 +53,6 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
     return <div>Loading route details...</div>;
   }
 
-  // Ensure selectedRouteIndex is within bounds
   const validIndex = Math.min(selectedRouteIndex, routeData.routes.length - 1);
   const selectedRoute = routeData.routes[validIndex];
 
@@ -60,13 +60,12 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
     return <div>No route data available</div>;
   }
 
-  // Safely access weather data
   const weatherData = selectedRoute.weather_markers?.[0];
 
   return (
     <div className="space-y-6">
       {/* Route Selection Buttons */}
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-2 justify-center mb-6">
         {routeData.routes.map((_, index) => (
           <Button
             key={index}
@@ -78,8 +77,31 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
+      <div className="space-y-6">
+        {/* Map Section */}
+        <div className="w-full">
+          <RouteMap 
+            coordinates={selectedRoute.coordinates}
+            origin={routeData.origin}
+            destination={routeData.destination}
+            alternativeRoutes={routeData.routes.map(route => route.coordinates)}
+            isNavigating={isNavigating}
+            selectedRouteIndex={validIndex}
+            onRouteSelect={onRouteSelect}
+          />
+          <div className="mt-4 flex justify-center">
+            <Button
+              className="flex items-center gap-2 w-full md:w-auto"
+              onClick={() => {/* ... keep existing code */}}
+            >
+              <Navigation2 className="h-4 w-4" />
+              {isNavigating ? 'Stop Navigation' : 'Start Navigation'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Information Cards Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {selectedRoute.distance && selectedRoute.time && (
             <RouteInformationCard
               distance={selectedRoute.distance}
@@ -91,26 +113,17 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
           {selectedRoute.emissions && (
             <EmissionsChart emissions={selectedRoute.emissions} />
           )}
+        </div>
 
-          {weatherData && selectedRoute.air_quality && (
+        {/* Weather Card Section */}
+        {weatherData && selectedRoute.air_quality && (
+          <div className="w-full">
             <WeatherCard
               weather={weatherData}
               airQuality={selectedRoute.air_quality}
             />
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <RouteMap 
-            coordinates={selectedRoute.coordinates}
-            origin={routeData.origin}
-            destination={routeData.destination}
-            alternativeRoutes={routeData.routes.map(route => route.coordinates)}
-            isNavigating={isNavigating}
-            selectedRouteIndex={validIndex}
-            onRouteSelect={onRouteSelect}
-          />
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

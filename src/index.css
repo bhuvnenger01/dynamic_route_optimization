@@ -4,17 +4,17 @@
 
 @layer base {
   :root {
-    --background: 260 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 273 75% 31%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 8.9% 46.1%;
     --muted-foreground: 220 8.9% 46.1%;
     --accent: 220 14.3% 95.9%;
     --accent-foreground: 220.9 39.3% 11%;
@@ -32,17 +32,17 @@
     @apply border-border;
   }
   body {
-    @apply bg-gradient-radial from-primary-light via-background to-secondary-light min-h-screen text-foreground;
+    @apply bg-gradient-radial from-white via-background to-gray-100 min-h-screen text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 .glass-card {
-  @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+  @apply bg-white/90 backdrop-blur-md border border-primary/20 shadow-lg;
 }
 
 .form-input {
-  @apply w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg 
+  @apply w-full px-4 py-3 bg-white/90 border border-primary/30 rounded-lg 
          focus:ring-2 focus:ring-primary/50 focus:border-primary 
          text-foreground placeholder-gray-500
          transition-all duration-200;

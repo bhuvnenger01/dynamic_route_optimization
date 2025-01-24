@@ -157,21 +157,6 @@ const RouteMap: React.FC<RouteMapProps> = ({
         </GoogleMap>
       </LoadScript>
 
-      {alternativeRoutes.length > 0 && (
-        <div className="flex gap-2">
-          {allRoutes.map((_, index) => (
-            <Button
-              key={index}
-              variant={index === selectedRouteIndex ? "default" : "outline"}
-              onClick={() => {
-                onRouteSelect?.(index);
-              }}
-            >
-              Route {index + 1}
-            </Button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

@@ -25,30 +25,30 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#9b87f5",
-          light: "#D6BCFA",
-          dark: "#7E69AB",
+          DEFAULT: "#4D148C", // FedEx Purple
+          light: "#6B2AC2",
+          dark: "#3B0F6A",
         },
         secondary: {
-          DEFAULT: "#8B5CF6",
-          light: "#E5DEFF",
-          dark: "#6E59A5",
+          DEFAULT: "#FF6600", // FedEx Orange
+          light: "#FF8533",
+          dark: "#CC5200",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#E32726", // FedEx Red
+          foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#8E9196", // Neutral Gray
+          foreground: "#403E43",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#1A1F2C", // Dark Purple
+          foreground: "#FFFFFF",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1A1F2C",
         },
       },
       borderRadius: {

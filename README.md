@@ -22,6 +22,7 @@ To get started with the project, follow these steps:
 1. **Clone the repository:**
     
 sh
+
     git clone https://github.com/bhuvnenger01/dynamic_route_optimization.git
     
     cd dynamic_route_optimization
@@ -30,6 +31,7 @@ sh
 2. **Install dependencies:**
     
 sh
+
     # For front-end dependencies
     npm install vite
 
@@ -41,6 +43,7 @@ sh
 3. **Start the application:**
     
 sh
+
     # For front-end
     npm run dev
 
